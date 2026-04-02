@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="sr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FilmBox</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .text-justify {
+            text-align: justify;
+        }
+    </style>
+</head>
+
+<body data-bs-theme="dark">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fa-regular fa-circle-play"></i> FilmBox
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fa-solid fa-house"></i> Početna
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="list.html">
+                            <i class="fa-solid fa-table-list"></i> Lista
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="cinema.html">
+                            <i class="fa-solid fa-clapperboard"></i> Bioskopi
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-4">
+                <img id="poster" class="img-fluid mb-3">
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card mb-3">
+                    <div class="card-header fw-bold" id="title"></div>
+                    <div class="card-body text-justify" id="desc"></div>
+                    <ul class="list-group list-group-flush fw-bold">
+                        <li class="list-group-item">
+                            <i class="fa-regular fa-clock"></i>
+                            <span id="time"></span> min
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fa-solid fa-calendar"></i>
+                            <span id="date"></span>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fa-solid fa-clapperboard"></i>
+                            <span id="director"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card mb-3" id="actor-card" hidden>
+                    <div class="card-header fw-bold">
+                        Glumci
+                    </div>
+                    <ul class="list-group list-group-flush" id="actors">
+                    </ul>
+                </div>
+                <div class="card mb-3">
+                    <div class="card-header fw-bold">
+                        Žanrovi
+                    </div>
+                    <ul class="list-group list-group-flush" id="genres">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search)
+        const id = params.get('id')
+        fetch('https://movie.pequla.com/api/movie/' + id)
+            .then(rsp => rsp.json())
+            .then(data => {
+                const poster = document.getElementById('poster')
+                poster.src = data.poster
+                poster.alt = data.title
+
+                const title = document.getElementById('title')
+                title.innerText = data.title
+
+                const desc = document.getElementById('desc')
+                desc.innerText = data.description
+
+                const time = document.getElementById('time')
+                time.innerText = data.runTime
+
+                const date = document.getElementById('date')
+                date.innerText = data.startDate
+
+                const director = document.getElementById('director')
+                director.innerText = data.director.name
+
+                if (data.movieActors.length > 0) {
+                    const actors = document.getElementById('actors')
+                    for (let a of data.movieActors) {
+                        const li = document.createElement('li')
+                        li.innerText = a.actor.name
+                        li.className = 'list-group-item'
+                        actors.appendChild(li)
+                    }
+
+                    const card = document.getElementById('actor-card')
+                    card.hidden = false
+                }
+
+                const genres = document.getElementById('genres')
+                for (let g of data.movieGenres) {
+                    const li = document.createElement('li')
+                    li.innerText = g.genre.name
+                    li.className = 'list-group-item'
+                    genres.appendChild(li)
+                }
+            })
+    </script>
+</body>
+
+</html>
