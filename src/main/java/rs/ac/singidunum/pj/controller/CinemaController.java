@@ -12,8 +12,8 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/api/cinema")
 @RequiredArgsConstructor
-public class CinemaController {
 
+public class CinemaController {
     private final CinemaRepository repository;
 
     @GetMapping

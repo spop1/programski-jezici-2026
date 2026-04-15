@@ -6,5 +6,4 @@ import rs.ac.singidunum.pj.entity.Cinema;
 
 @Repository
 public interface CinemaRepository extends JpaRepository<Cinema, Integer> {
-
 }

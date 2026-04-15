@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="sr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FilmBox</title>
+    <title>Film</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <!-- alt+shift+f -> formatiranje -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
         integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+    </style>
 </head>
 
-<body data-bs-theme="dark">
-    <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
+<body data-bs-theme="dark" bg-body-tertiary>
+    <nav class="navbar navbar-expand-lg mb-3">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
-                <i class="fa-regular fa-circle-play"></i> FilmBox
-            </a>
+            <a class="navbar-brand" href="index.html"><i class="fa-solid fa-bowl-food"></i>FilmBox</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">
@@ -27,20 +28,23 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
                         <a class="nav-link" href="index.html">
-                            <i class="fa-solid fa-house"></i> Početna
-                        </a>
+                            <i class="fa-duotone fa-solid fa-house"></i>Početna</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="list.html">
-                            <i class="fa-solid fa-table-list"></i> Lista
+                            <i class="fa-solid fa-table-list"></i>
+                            List
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="cinema.html">
-                            <i class="fa-solid fa-clapperboard"></i> Bioskopi
+                        <a class="nav-link active" href="cinema.html">
+                            <i class="fa-solid fa-movie"></i>
+                            <i class="fa-solid fa-clapperboard"></i>Bioskopi
                         </a>
                     </li>
+
                 </ul>
+
             </div>
         </div>
     </nav>
@@ -50,40 +54,44 @@
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Naziv</th>
-                    <th scope="col">Vreme Trajanja</th>
-                    <th scope="col">Žanr</th>
-                    <th scope="col">Režiser</th>
+                    <th scope="col">Vreme trajanja</th>
+                    <th scope="col">Zanr</th>
+                    <th scope="col">Reziser</th>
                     <th scope="col">Opcije</th>
                 </tr>
             </thead>
-            <tbody id="movies"></tbody>
+            <tbody id="movies">
+
+
+            </tbody>
         </table>
+        <pre id="json"></pre>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+        </script>
+
     <script>
         fetch('https://movie.pequla.com/api/movie')
             .then(rsp => rsp.json())
             .then(data => {
                 const list = document.getElementById('movies')
-                const sorted = data.sort((m1, m2) => {
+                let sorted = data.sort((m1, m2) => {
                     return m2.movieId - m1.movieId
                 })
                 let content = ''
-                for (let movie of sorted) {
-                    content += `
-                    <tr>
-                        <th scope="row">${movie.movieId}</th>
-                        <td>${movie.title}</td>
-                        <td>${movie.runTime} min</td>
-                        <td>${movie.movieGenres[0].genre.name}</td>
-                        <td>${movie.director.name}</td>
+                for (let m of sorted) {
+                    content += ` <tr>
+                        <th scope="row">${m.movieId}</th>
+                        <td>${m.title}</td>
+                        <td>${m.runTime} min</td>
+                         <td>${m.movieGenres[0].genre.name}</td>
+                        <td>${m.director.name}</td>
                         <td>
-                            <a href="./details.html?id=${movie.movieId}" class="btn btn-sm btn-primary">
-                                <i class="fa-solid fa-up-right-from-square"></i> Detalji
-                            </a>
-                        </td>
+                            <a href="./details.html?id=${m.movieId}" class="btn btn-sm btn-primary">
+                               <i class="fa-solid fa-up-right-from-square"></i> Details
+                                </a>
+                            </td>
                     </tr>
                     `
                 }

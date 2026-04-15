@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.3</version>
+		<version>4.0.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>rs.ac.singidunum</groupId>
 	<artifactId>programski-jezici</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>programski-jezici</name>
-	<description>Spring Boot project from lab sessions</description>
+	<name/>
+	<description/>
 	<url/>
 	<licenses>
 		<license/>

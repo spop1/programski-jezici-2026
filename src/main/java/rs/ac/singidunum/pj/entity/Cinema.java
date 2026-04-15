@@ -1,6 +1,4 @@
 package rs.ac.singidunum.pj.entity;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +27,6 @@ public class Cinema {
 
     private LocalDateTime updatedAt;
 
-    @JsonIgnore
     private LocalDateTime deletedAt;
+
 }
