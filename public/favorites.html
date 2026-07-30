@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favorites</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    #recipes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .recipes-card {
+      width: 22rem;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+      <a class="navbar-brand" href="./index.html">
+          <i class="fa-solid fa-bowl-food"></i>Recipes
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" href="./index.html">
+              <i class="fa-solid fa-house"></i>Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="./favorites.html">
+                <i class="fa-solid fa-bookmark">
+              </i>Favorites
+            </a>
+            <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="./list.html">
+                <i class="fa-solid fa-list"></i>
+              </i>Lista
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-current="page" href="./restaurant.html">
+                <i class="fa-solid fa-utensils"></i>
+              </i>Restorani
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="container">
+    <div id="recipes" class="row"></div>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous">
+</script>
+  <script>
+    let favoriteMeals = []
+
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem("favorites")) ?? []
+    }
+
+    function saveFavorites(favorites) {
+      localStorage.setItem("favorites", JSON.stringify(favorites))
+    }
+
+    function renderMeals(mealsArray) {
+      const list = document.getElementById("recipes")
+
+      if (mealsArray.length === 0) {
+        list.innerHTML = `<p class="mt-4">Nema favorita.</p>`
+        return
+      }
+
+      let content = ""
+
+      for (let r of mealsArray) {
+        content += `
+          <div class="card recipes-card col-12 col-sm-6 col-lg-3">
+            <a href="details.html?id=${r.idMeal}">
+              <img src="${r.strMealThumb}" class="card-img-top">
+            </a>
+
+            <div class="card-body">
+              <h5 class="card-title">${r.strMeal}</h5>
+
+              <p class="card-text">
+                ${r.strInstructions.substring(0, 120)}...
+              </p>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <a href="details.html?id=${r.idMeal}" class="btn btn-primary">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  Details
+                </a>
+
+                <button class="btn btn-light border" onclick="toggleFavorite('${r.idMeal}')">
+                  <i class="fa-solid fa-heart text-danger"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `
+      }
+
+      list.innerHTML = content
+    }
+
+    function toggleFavorite(id) {
+      let favorites = new Set(getFavorites())
+
+      if (favorites.has(id)) {
+        favorites.delete(id)
+      } else {
+        favorites.add(id)
+      }
+
+      saveFavorites([...favorites])
+
+      favoriteMeals = favoriteMeals.filter(r => r.idMeal !== id)
+      renderMeals(favoriteMeals)
+    }
+
+    function loadFavorites() {
+      const favorites = getFavorites()
+
+      if (favorites.length === 0) {
+        renderMeals([])
+        return
+      }
+
+      Promise.all( 
+        favorites.map(id =>
+          fetch("https://www.themealdb.com/api/json/v1/1/lookup.php?i=" + id)
+            .then(rsp => rsp.json())
+            .then(data => data.meals ? data.meals[0] : null)
+        )
+      )
+        .then(data => {
+          favoriteMeals = data.filter(meal => meal !== null)
+          renderMeals(favoriteMeals)
+        })
+        .catch(err => {
+          console.error("Greška pri učitavanju favorita:", err)
+        })
+    }
+      // map pravi više zahteva, Promise.all čeka sve njih, a renderMeals ih prikazuje
+
+    loadFavorites()
+  </script>
+</body>
+
+</html>
