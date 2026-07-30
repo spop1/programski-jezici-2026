@@ -11,6 +11,6 @@ import rs.ac.singidunum.pj.entity.Restaurant;
 public interface RestaurantsRepository extends JpaRepository<Restaurant, Integer> {
 
     List<Restaurant> findAllByDeletedAtIsNull();
-    Optional<Restaurant> findOneByRestaurantsIdAndDeletedAtIsNull(Integer id);
+    Optional<Restaurant> findOneByRestaurantIdAndDeletedAtIsNull(Integer id);
 }
 

@@ -9,14 +9,15 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "restaurants")
+@Table(name = "restaurant")
 @NoArgsConstructor
 @Getter
 @Setter
 public class Restaurant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer restaurantsId;
+    @Column(name = "restaurants_id")
+    private Integer restaurantId;
 
     @Column(nullable = false)
     private String name;
