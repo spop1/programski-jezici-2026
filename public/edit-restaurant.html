@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="./index.html">
+                <i class="fa-solid fa-bowl-food"></i>Recipes
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="./index.html">
+                            <i class="fa-solid fa-house me-2"></i>Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="./favorites.html">
+                            <i class="fa-solid fa-bookmark me-2"></i>Favorites
+                        </a>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="./list.html">
+                            <i class="fa-solid fa-list me-2"></i>List
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="./restaurant.html">
+                            <i class="fa-solid fa-utensils me-2"></i>Restaurant
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <a href="/new-restaurant.html" class="btn btn-sm btn-primary">Add a restaurant</a>
+        <div class="crud-container">
+            <div class="card">
+                <div class="card-header">
+                    <strong>Change the restaurant</strong>
+                </div>
+                <div id="alert-container" class="px-3 pt-3"></div>
+                <form id="restaurant-form">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="id" class="form-label">ID:</label>
+                            <input type="number" id="id" disabled class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name:</label>
+                            <input type="text" id="name" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address:</label>
+                            <input type="text" id="address" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-success" id="save">
+                            <i class="fa-solid fa-floppy-disk"></i>Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search)
+        const id = params.get('id')
+
+        const inputId = document.getElementById('id')
+        const inputName = document.getElementById('name')
+        const inputAddress = document.getElementById('address')
+        const formId = document.getElementById('restaurant-form')
+
+        function openAll() {
+            window.location.href = '/restaurant.html'
+        }
+
+        const alertContainer = document.getElementById('alert-container')
+
+        // A showing alert Bootstrap helper method, default is danger
+        function showAlert(message, type = 'danger') {
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `
+        }
+
+        // Fetches existing restaurant data by ID and populates the form
+        async function loadRestaurantData() {
+            if (!id) {
+                showAlert('No restaurant ID found in the URL.', 'warning');
+                return;
+            }
+            try {
+                const response = await fetch(`/api/restaurant/${id}`)
+
+                if (!response.ok) {
+                    throw new Error('No restaurant found.')
+                }
+
+                const data = await response.json()
+                inputId.value = data.restaurantId
+                inputName.value = data.name
+                inputAddress.value = data.address
+
+            } catch (error) {
+                console.error('Error:', error)
+                showAlert('An error occurred while loading the restaurant.')
+            }
+        }
+
+        // Customized saving function (PUT)
+        async function updateRestaurant() {
+            // Validation blank fields 
+            if (!inputName.value.trim() || !inputAddress.value.trim()) {
+                showAlert('Please fill in all required fields!', 'warning')
+                return
+            }
+
+            try {
+                const response = await fetch(`/api/restaurant/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: inputName.value,
+                        address: inputAddress.value
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('The server rejected the update.')
+                }
+
+                openAll()
+            } catch (error) {
+                console.error('An error occured while saving:', error)
+
+                showAlert('Failed to save changes to the database.')
+            }
+        }
+
+        formId?.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            updateRestaurant();
+        });
+
+        document.addEventListener('DOMContentLoaded', loadRestaurantData);
+
+    </script>
+</body>
+
+</html>

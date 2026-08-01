@@ -3,3 +3,7 @@
     margin-left: auto;
     margin-right: auto;
 }
+card-img-top {
+    height: 180px;         /* 1. Fiksiramo visinu slike (možeš staviti npr. 160px ili 200px) */
+    object-fit: cover;     /* 2. Sprečava da se slika razvuče ili izobliči */
+}

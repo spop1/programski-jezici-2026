@@ -26,24 +26,21 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
             <a class="nav-link active" href="./index.html">
-              <i class="fa-solid fa-house"></i>Home
+              <i class="fa-solid fa-house me-2"></i>Home
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="./favorites.html">
-              <i class="fa-solid fa-bookmark">
-              </i>Favorites
+              <i class="fa-solid fa-bookmark me-2"></i>Favorites
             </a>
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="./list.html">
-              <i class="fa-solid fa-list"></i>
-              </i>Lista
+              <i class="fa-solid fa-list me-2"></i>List
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="./restaurant.html">
-              <i class="fa-solid fa-utensils"></i>
-              </i>Restorani
+              <i class="fa-solid fa-utensils me-2"></i>Restaurant
             </a>
           </li>
         </ul>
@@ -51,6 +48,7 @@
     </div>
   </nav>
   <div class="container">
+    <a href="/new-restaurant.html" class="btn btn-sm btn-primary">Add a restaurant</a>
     <table class="table">
       <thead>
         <tr>
@@ -69,30 +67,34 @@
   <script>
 
     async function remove(id) {
-        if (!confirm(`Delete the restaurant ${id}?`)) return
+      if (!confirm(`Delete the restaurant ${id}?`)) return
 
-        try {
-            const rsp = await fetch(`/api/restaurant/${id}`, {method: 'delete'})
-            if (rsp.ok) {
-                loadRestaurants()  
-            } else {
-                alert("Error!")
-            }
-              } catch (error) {
-                  console.error("Greska pri brisanju:", error)
-              }
+      try {
+        const rsp = await fetch(`/api/restaurant/${id}`, { method: 'delete' })
+        if (rsp.ok) {
+          loadRestaurants()
+        } else {
+          alert("Error!")
+        }
+      } catch (error) {
+        console.error("Greska pri brisanju:", error)
+      }
+    }
+
+    function edit(id) {
+      window.location.href = '/edit-restaurant.html?id=' + id
     }
 
     async function loadRestaurants() {
       try {
-          const rsp = await fetch('/api/restaurant')
-          if (!rsp.ok) throw new Error(`HTTP greska! Status: ${rsp.status}`)
-          const data = await rsp.json()
-          const table = document.getElementById('restaurants')
+        const rsp = await fetch('/api/restaurant')
+        if (!rsp.ok) throw new Error(`HTTP greska! Status: ${rsp.status}`)
+        const data = await rsp.json()
+        const table = document.getElementById('restaurants')
 
-          let content = ""
-          for (let restaurant of data) {
-            content += `
+        let content = ""
+        for (let restaurant of data) {
+          content += `
                     <tr>
                       <td scope="row">${restaurant.restaurantId}</td>
                       <td>${restaurant.name}</td>
@@ -107,21 +109,14 @@
                       </td>
                     </tr>
               `
-      }
-      table.innerHTML = content
+        }
+        table.innerHTML = content
       } catch (error) {
-    console.error("Došlo je do greške u fetch-u:", error);
+        console.error("Fetch error:", error);
       }
     }
 
-    loadRestaurants()
-    // const pre = document.getElementById('json')
-    // fetch('/api/restaurant')
-    //   .then(rsp => rsp.json())
-    //   .then(data => {
-    //     pre.innerText = JSON.stringify(data, null, 2)
-    //   })
-    //
+    document.addEventListener('DOMContentLoaded', loadRestaurants);
   </script>
 </body>
 

@@ -10,11 +10,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
     integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <style>
-    .recipes-card {
-      width: 22rem;
-    }
-  </style>
 </head>
 
 <body>
@@ -30,33 +25,30 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" href="./index.html">
-              <i class="fa-solid fa-house"></i>Home
+            <a class="nav-link" href="./index.html">
+              <i class="fa-solid fa-house me-2"></i>Home
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="./favorites.html">
-              <i class="fa-solid fa-bookmark">
-              </i>Favorites
+              <i class="fa-solid fa-bookmark me-2"></i>Favorites
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="./list.html">
-              <i class="fa-solid fa-table-list"></i>
-              </i>Lista
+            <a class="nav-link active" aria-current="page" href="./list.html">
+              <i class="fa-solid fa-table-list me-2"></i>List
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link" aria-current="page" href="./restaurant.html">
-              <i class="fa-solid fa-utensils"></i>
-              </i>Restorani
+              <i class="fa-solid fa-utensils me-2"></i>Restaurant
             </a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
-  <div class="container">
+  <div class="container my-4">
     <table class="table">
       <thead>
         <tr>
@@ -74,16 +66,18 @@
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
   <script>
+    
     async function loadRecipes() {
 
+      try{
       const rsp = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=")
+      if (!rsp.ok) throw new Error("HTTP error! Status: " + rsp.status)
       const data = await rsp.json()
 
       const recipe = document.getElementById('recipes')
 
-      const sorted = data.meals.sort((r1, r2) => {
-        return r2.idMeal - r1.idMeal;
-      })
+      const sorted = data.meals.sort((r1, r2) => Number(r2.idMeal) - Number(r1.idMeal));
+      
 
       let content = ""
 
@@ -93,18 +87,21 @@
                         <th scope="row">${meal.idMeal}</th>
                         <td>${meal.strMeal}</td>
                         <td>${meal.strCategory}</td>
-                        <td>${meal.strArea}</td>
+                        <td>${meal.strArea || 'Unknown'}</td>
                         <td>
-                           <a href="details.html?id=${meal.idMeal}" class="btn btn-primary">
-                             <i class="fa-solid fa-arrow-up-right-from-square"></i>Details
+                           <a href="details.html?id=${meal.idMeal}" class="btn btn-primary btn-sm">
+                             <i class="fa-solid fa-arrow-up-right-from-square me-2"></i> Details
                            </a>  
                         </td>
                   </tr>
                 `
       }
       recipe.innerHTML = content
+    } catch (error) {
+        console.error('Error:', error)
     }
-    loadRecipes()
+    }
+    document.addEventListener('DOMContentLoaded', loadRecipes)
   </script>
 </body>
 
