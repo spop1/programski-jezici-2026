@@ -62,46 +62,53 @@
       <tbody id="recipes"></tbody>
     </table>
   </div>
+   <!-- External and utility scripts -->
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
+  <script src="/js/utils.js"></script>
+
   <script>
-    
-    async function loadRecipes() {
 
-      try{
-      const rsp = await fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=")
-      if (!rsp.ok) throw new Error("HTTP error! Status: " + rsp.status)
-      const data = await rsp.json()
+    function renderTable(data) {
+      const tableBody = document.getElementById('recipes')
+      const meals = data.meals || []
 
-      const recipe = document.getElementById('recipes')
-
-      const sorted = data.meals.sort((r1, r2) => Number(r2.idMeal) - Number(r1.idMeal));
-      
-
-      let content = ""
-
-      for (let meal of sorted) {
-        content += `
-                  <tr>
-                        <th scope="row">${meal.idMeal}</th>
-                        <td>${meal.strMeal}</td>
-                        <td>${meal.strCategory}</td>
-                        <td>${meal.strArea || 'Unknown'}</td>
-                        <td>
-                           <a href="details.html?id=${meal.idMeal}" class="btn btn-primary btn-sm">
-                             <i class="fa-solid fa-arrow-up-right-from-square me-2"></i> Details
-                           </a>  
-                        </td>
-                  </tr>
-                `
+      if (meals.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5" class="text-center">No recipes.</td></tr>`;
+        return;
       }
-      recipe.innerHTML = content
-    } catch (error) {
-        console.error('Error:', error)
+
+      const sortedMeals = meals.sort((r1, r2) => Number(r1.idMeal) - Number(r2.idMeal));
+
+      let content = "";
+
+      for (let meal of sortedMeals) {
+        content += `
+          <tr>
+            <th scope="row">${meal.idMeal}</th>
+            <td>${meal.strMeal}</td>
+            <td>${meal.strCategory}</td>
+            <td>${meal.strArea || 'Unknown'}</td>
+            <td>
+              <a href="details.html?id=${meal.idMeal}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Details
+              </a>  
+            </td>
+          </tr>
+        `;
+      }
+
+      tableBody.innerHTML = content;
     }
+    function loadRecipes() {
+      const API_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+      retrieveData(API_URL, renderTable);
     }
-    document.addEventListener('DOMContentLoaded', loadRecipes)
+
+    document.addEventListener('DOMContentLoaded', loadRecipes);
+
   </script>
 </body>
 

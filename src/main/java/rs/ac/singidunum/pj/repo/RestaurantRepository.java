@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import rs.ac.singidunum.pj.entity.Restaurant;
 
 @Repository
-public interface RestaurantsRepository extends JpaRepository<Restaurant, Integer> {
+public interface RestaurantRepository extends JpaRepository<Restaurant, Integer> {
 
     List<Restaurant> findAllByDeletedAtIsNull();
     Optional<Restaurant> findOneByRestaurantIdAndDeletedAtIsNull(Integer id);
