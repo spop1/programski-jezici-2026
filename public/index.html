@@ -64,7 +64,9 @@
     let meals = []
 
     function handleRecipesData(data) {
+      console.log("3. The data came from server:", data);
       meals = data.meals || []
+      console.log("4. The parsed meals:", meals);
       renderMeals(meals)
     }
 
@@ -117,10 +119,11 @@
     function toggleFavorite(id) {
       let favorites = getFavorites();
 
-      if (favorites.has(id)) {
-        favorites.delete(id)
+      const stringId = String(id)
+      if (favorites.has(stringId)) {
+        favorites.delete(stringId)
       } else {
-        favorites.add(id)
+        favorites.add(stringId)
       }
 
       saveFavorites(favorites)
@@ -129,12 +132,16 @@
     }
 
     function loadRecipes() {
-      const API_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s="
+      console.log("1.The loadRecipes function started")
+      const apiMealsUrl = "/api/meals"
 
-      retrieveData(API_URL, handleRecipesData)
+      console.log("2.I'am calling retreiveData with URL:", apiMealsUrl)
+      retrieveData(apiMealsUrl, handleRecipesData)
     }
 
-    document.addEventListener('DOMContentLoaded', loadRecipes)
+    document.addEventListener('DOMContentLoaded', () => { 
+      console.log("0. DOM is ready, I am calling the loadRecipes...")
+      loadRecipes() });
   </script>
 </body>
 

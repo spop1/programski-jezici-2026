@@ -10,6 +10,7 @@ function showLoading() {
         title: 'Loading Data...',
         text: 'Please wait while we process your request.',
         allowOutsideClick: false,
+        buttonsStyling: false,
         customClass: bootstrapClasses,
         didOpen: () => {
             Swal.showLoading();
@@ -38,13 +39,19 @@ async function retrieveData(url, callback) {
 
 function getFavorites() {
     try {
-        const stored = JSON.parse(localStorage.getItem("favorites"))
-        if (Array.isArray(stored))
-            return new Set(stored)
+        const raw = localStorage.getItem("favorites");
+        if (!raw) return new Set();
+        
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+            
+            //Converts all IDs to strings and remove empty/falsy values 
+            return new Set(parsed.map(id => String(id)).filter(Boolean));
+        }
     } catch (e) {
-        console.error("Error: " + e)
+        console.error("Greška pri čitanju favorites iz localStorage:", e);
     }
-    return new Set()
+    return new Set();
 }
 
 function saveFavorites(favoritesSet) {
@@ -58,6 +65,7 @@ function showConfirm(msg, callback) {
         confirmButtonText: 'Yes',
         cancelButtonText: 'No',
         icon: "question",
+        buttonsStyling: false,
         customClass: bootstrapClasses
     }).then(result => {
         if (result.isConfirmed) {

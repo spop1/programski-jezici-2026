@@ -103,7 +103,7 @@
       tableBody.innerHTML = content;
     }
     function loadRecipes() {
-      const API_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+      const API_URL = "/api/meals";
       retrieveData(API_URL, renderTable);
     }
 

@@ -134,7 +134,7 @@
 
         function loadDetails() {
             if (!id) return;
-            const API_URL = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=" + id;
+            const API_URL = "/api/meals" + id;
             retrieveData(API_URL, renderDetails);
         }
 

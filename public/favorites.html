@@ -51,111 +51,124 @@
   <div class="container my-4">
     <div id="recipes" class="row g-4"></div>
   </div>
-   <!-- External and utility scripts -->
+  <!-- External and utility scripts -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
   <script src="/js/utils.js"></script>
   <script>
-    let favoriteMeals = []
+    let favoriteMeals = [];
 
     function renderMeals(mealsArray) {
-      const list = document.getElementById("recipes")
+      const list = document.getElementById("recipes");
 
       if (!mealsArray || mealsArray.length === 0) {
-        list.innerHTML = `<div class="col-12"><p class="mt-4 text-muted">No recipes.</p></div>`;
-        return
+        list.innerHTML = `<div class="col-12"><p class="mt-4 text-muted">No recipes found in favorites.</p></div>`;
+        return;
       }
 
-      let content = ""
+      let content = "";
 
       for (let r of mealsArray) {
-        const rawInstructions = r.strInstructions || 'No description.'
+        // Provided r.idMeal and r.id, r.strMeal and r.name, etc.
+        const id = r.idMeal || r.id;
+        const title = r.strMeal ?? r.name ?? 'Untitled';
+        const thumb = r.strMealThumb || r.thumbnail || '';
+        const rawInstructions = r.strInstructions || r.instructions || 'No description.';
+
         const instructions = rawInstructions.length > 100
           ? rawInstructions.substring(0, 100) + '...'
-          : rawInstructions
+          : rawInstructions;
 
         content += `
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-          <div class="card h-100 shadow-sm">
-            <a href="details.html?id=${r.idMeal}">
-              <img src="${r.strMealThumb}" class="card-img-top" alt="${r.strMeal}" loading="lazy">
-            </a>
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="card h-100 shadow-sm">
+          <a href="details.html?id=${id}">
+            <img src="${thumb}" class="card-img-top" alt="${title}" loading="lazy">
+          </a>
 
-            <div class="card-body d-flex flex-column justify-content-between">
-              <div>
-                <h5 class="card-title">${r.strMeal}</h5>
-                <p class="card-text small text-muted">
-                  ${instructions}
-                </p>
-              </div>
+          <div class="card-body d-flex flex-column justify-content-between">
+            <div>
+              <h5 class="card-title">${title}</h5>
+              <p class="card-text small text-muted">
+                ${instructions}
+              </p>
+            </div>
 
-              <div class="d-flex justify-content-between align-items-center mt-3">
-                <a href="details.html?id=${r.idMeal}" class="btn btn-primary btn-sm">
-                  <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>
-                  Details
-                </a>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <a href="details.html?id=${id}" class="btn btn-primary btn-sm">
+                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i>
+                Details
+              </a>
 
-                <button class="btn btn-outline-danger btn-sm" onclick="toggleFavorite('${r.idMeal}')" title="Ukloni iz favorita">
-                  <i class="fa-solid fa-heart text-danger"></i>
-                </button>
-              </div>
+              <button class="btn btn-outline-danger btn-sm" onclick="toggleFavorite('${id}')" title="Ukloni iz favorita">
+                <i class="fa-solid fa-heart text-danger"></i>
+              </button>
             </div>
           </div>
         </div>
-        `
+      </div>
+      `;
       }
 
-      list.innerHTML = content
+      list.innerHTML = content;
     }
 
     function toggleFavorite(id) {
-      let favorites = getFavorites()
+      let favorites = getFavorites();
 
-      if (favorites.has(id)) {
-        favorites.delete(id)
+      if (favorites.has(String(id))) {
+        favorites.delete(String(id));
       } else {
-        favorites.add(id)
+        favorites.add(String(id));
       }
 
-      saveFavorites(favorites)
+      saveFavorites(favorites);
 
-      // Remove a deleted recipe from array and render again
-      favoriteMeals = favoriteMeals.filter(r => r.idMeal !== id)
+      // Removing the meal from the favorites list and refreshing the display
+      favoriteMeals = favoriteMeals.filter(r => String(r.idMeal || r.id) !== String(id))
       renderMeals(favoriteMeals)
     }
 
-    // Async učitavanje svih omiljenih recepata pomoću Promise.all i await
     async function loadFavorites() {
-      const favoritesIds = Array.from(getFavorites())
+      const favoritesIds = Array.from(getFavorites());
 
       if (favoritesIds.length === 0) {
-        renderMeals([])
-        return
+        renderMeals([]);
+        return;
       }
 
       try {
-        showLoading()
+        if (typeof showLoading === 'function') showLoading();
 
         const fetchPromises = favoritesIds.map(async (id) => {
-          const rsp = await fetch("https://www.themealdb.com/api/json/v1/1/lookup.php?i=" + id)
-          if (!rsp.ok) return null
-          const data = await rsp.json()
-          return data.meals ? data.meals[0] : null
-        })
+          try {
+            const rsp = await fetch(`/api/meals/${id}`);
+            if (!rsp.ok) return null;
 
-        const data = await Promise.all(fetchPromises)
-        favoriteMeals = data.filter(meal => meal !== null)
-        renderMeals(favoriteMeals)
+            const data = await rsp.json();
+            return (data && data.meals) ? data.meals[0] : data;
+          } catch (err) {
+            console.error(`Error for id:  ${id}:`, err);
+            return null;
+          }
+        });
+
+        const data = await Promise.all(fetchPromises);
+
+        // Filter out any null entries from the feched data
+        favoriteMeals = data.filter(meal => meal !== null);
+
+        console.log("The favorites is :", favoriteMeals);
+        renderMeals(favoriteMeals);
 
       } catch (err) {
-        console.error("Error of loading favorites:", err)
+        console.error("Error while loading favorites:", err);
       } finally {
-        Swal.close()
+        if (typeof Swal !== 'undefined' && Swal.close) Swal.close();
       }
     }
-    // map pravi više zahteva, Promise.all čeka sve njih, a renderMeals ih prikazuje
 
     document.addEventListener('DOMContentLoaded', loadFavorites);
   </script>
