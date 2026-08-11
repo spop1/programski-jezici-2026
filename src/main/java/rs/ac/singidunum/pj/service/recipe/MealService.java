@@ -56,6 +56,7 @@ public class MealService {
     }
 
     public Optional<MealModel> getMealById(String id) {
+        System.out.println(">>> Pokušavam da dohvatim recept za ID: '" + id + "'");
         try {
             MealResponseModel response = client.get()
                     .uri("/lookup.php?i={id}", id) 

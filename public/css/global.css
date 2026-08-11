@@ -1,9 +1,23 @@
 .crud-container {
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
-card-img-top {
-    height: 180px;         /* 1. Fiksiramo visinu slike (možeš staviti npr. 160px ili 200px) */
-    object-fit: cover;     /* 2. Sprečava da se slika razvuče ili izobliči */
+
+/* POPRAVLJENO: Dodata tačka za klasu */
+.card-img-top {
+  height: 180px;        /* Fiksna visina slike */
+  object-fit: cover;    /* Sprečava izobličavanje slike */
+}
+
+/* Pomera li.search-item skroz na desnu stranu */
+nav ul li.search-item {
+  margin-left: auto; 
+}
+
+/* Poravnava input i button unutar forme */
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
