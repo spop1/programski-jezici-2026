@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     </nav>
   `);
 
-  // Context-aware navbar search redirection
   const searchForm = document.getElementById('searchForm');
   const searchInput = document.getElementById('searchInput');
 
@@ -72,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Universal page loader fetching data based on URL search query
+// URL-based state & Initial page load
 async function initPageLoad(defaultUrl, searchUrlBase, renderCallback) {
   const urlParams = new URLSearchParams(window.location.search);
   const searchQuery = urlParams.get('search');
@@ -176,4 +175,28 @@ function escapeHTML(str) {
     };
     return map[match];
   });
+}
+
+function showConfirm(message, callback) {
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: message,
+      icon: 'warning',
+      showCancelButton: true,
+      buttonsStyling: false,
+      customClass: bootstrapClasses,
+      confirmButtonText: 'Yes',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        callback();
+      }
+    });
+  } else {
+
+    if (confirm(message)) {
+      callback();
+    }
+  }
 }

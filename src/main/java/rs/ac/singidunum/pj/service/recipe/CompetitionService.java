@@ -19,7 +19,6 @@ public class CompetitionService {
         for (Competition c: competitionSchedules) {
             c.setRecipe(recipeService.getMealById(c.getRecipeId()).orElse(null));
         }
-
         return competitionSchedules;
     }
 }

@@ -4,20 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.server.ResponseStatusException;
-
 import lombok.RequiredArgsConstructor;
 import rs.ac.singidunum.pj.entity.Restaurant;
+import rs.ac.singidunum.pj.model.recipe.RestaurantModel;
 import rs.ac.singidunum.pj.repo.RestaurantRepository;
 
 @Service
@@ -26,31 +16,37 @@ public class RestaurantService {
 
     private final RestaurantRepository repository;
 
-    public List<Restaurant> getAll() {
-        return repository.findAllByDeletedAtIsNull();
+    public Optional<RestaurantModel> getById(Integer id) {
+        return repository.findOneByRestaurantIdAndDeletedAtIsNull(id)
+                .map(entity -> toModel(entity));
     }
 
-    public Optional<Restaurant> getById(Integer id) {
-        return repository.findOneByRestaurantIdAndDeletedAtIsNull(id);
+     public List<RestaurantModel> getAll() {
+        return repository.findAllByDeletedAtIsNull()
+                .stream()
+                .map(this::toModel)
+                .toList();
     }
 
-    public Restaurant create(Restaurant entity) {
-        // Map the incoming fields to the new entity properties
-        Restaurant restaurant = new Restaurant();
-        restaurant.setName(entity.getName());
-        restaurant.setAddress(entity.getAddress());
-        restaurant.setCreatedAt(LocalDateTime.now());
-        return repository.save(restaurant);
+    public RestaurantModel create(RestaurantModel model) {
+        Restaurant entity = toEntity(model);
+
+        entity.setCreatedAt(LocalDateTime.now());
+        Restaurant savedEntity = repository.save(entity);
+
+        return toModel(savedEntity);
     }
-           
-    public Restaurant update(Integer id, Restaurant entity) {
-        // Fetch existing active restaurant from DB by ID (ignore soft-deleted)
-        Restaurant restaurant = repository.findOneByRestaurantIdAndDeletedAtIsNull(id).orElseThrow();
-        restaurant.setName(entity.getName());
-        restaurant.setAddress(entity.getAddress());
-        restaurant.setUpdatedAt(LocalDateTime.now());
-        // Persist changes to the database and return the updated entithy
-        return repository.save(restaurant);
+
+    public RestaurantModel update(Integer id, RestaurantModel model) {
+        Restaurant existing = repository.findOneByRestaurantIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException("The restaurant is not founded."));
+
+        existing.setAddress(model.getAddress());
+        existing.setName(model.getName());
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        Restaurant savedEntity = repository.save(existing);
+        return toModel(savedEntity);
     }
 
     // Handles HTTP DELETE request to Soft-delete a restaurant by its id
@@ -59,4 +55,31 @@ public class RestaurantService {
         restaurant.setDeletedAt(LocalDateTime.now());
         repository.save(restaurant);
     }
+
+    // Mapping Restaurant to RestaurantModel
+    private RestaurantModel toModel(Restaurant entity) {
+        if (entity == null)
+            return null;
+
+        RestaurantModel model = new RestaurantModel();
+        model.setRestaurantId(entity.getRestaurantId());
+        model.setAddress(entity.getAddress());
+        model.setName(entity.getName());
+
+        return model;
+    }
+
+    // Mapping RestaurantModel to Restaurant
+    private Restaurant toEntity(RestaurantModel model) {
+        if (model == null)
+            return null;
+
+        Restaurant restaurant = new Restaurant();
+        restaurant.setRestaurantId(model.getRestaurantId());
+        restaurant.setAddress(model.getAddress());
+        restaurant.setName(model.getName());
+
+        return restaurant;
+    }
+
 }

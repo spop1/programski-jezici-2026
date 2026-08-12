@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,19 +12,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
-import rs.ac.singidunum.pj.entity.Restaurant;
-import rs.ac.singidunum.pj.repo.RestaurantRepository;
+import jakarta.validation.Valid;
+import rs.ac.singidunum.pj.model.recipe.RestaurantModel;
 import rs.ac.singidunum.pj.service.RestaurantService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
-
+@CrossOrigin
 @RestController
 @RequestMapping(path = "/api/restaurant")
 @RequiredArgsConstructor
@@ -32,12 +31,12 @@ public class RestaurantController {
             private final RestaurantService service;
 
             @GetMapping
-            public List<Restaurant> getRestaurants(){
+            public List<RestaurantModel> getRestaurants(){
                 return service.getAll();
             }
 
             @GetMapping(path = "/{id}")
-            public ResponseEntity<Restaurant> getRestaurantByid(@PathVariable Integer id) {
+            public ResponseEntity<RestaurantModel> getRestaurantById(@PathVariable Integer id) {
                 return ResponseEntity.of(service.getById(id));
             }        
             
@@ -48,13 +47,14 @@ public class RestaurantController {
             }
 
             @PutMapping(path = "/{id}")
-            public Restaurant updateRestaurant(@PathVariable Integer id, @RequestBody Restaurant entity) {
-                return service.update(id, entity);
+            public RestaurantModel updateRestaurant(@PathVariable Integer id, @Valid @RequestBody RestaurantModel model) {
+                return service.update(id, model);
             }
 
             @PostMapping
-            public Restaurant createReastaurant(@RequestBody Restaurant entity) {
-                return service.create(entity);
+            @ResponseStatus(code = HttpStatus.CREATED)
+            public RestaurantModel createReastaurant(@Valid @RequestBody RestaurantModel model) {
+                return service.create(model);
             }
 
            

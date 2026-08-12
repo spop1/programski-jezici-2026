@@ -27,8 +27,8 @@ public class MealService {
     public Optional<MealResponseModel> getAll() {
         try {
             MealResponseModel response = client.get()
-                    .uri("/search.php?s=") // An empty 's=' returns the default recipe set
-                    .retrieve() // Sends the request and retrieves the HTTP response
+                    .uri("/search.php?s=") 
+                    .retrieve() 
                     .body(MealResponseModel.class); // Deserializes the JSON into a MealResponseModel instance
 
             return Optional.ofNullable(response);

@@ -8,27 +8,31 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "restaurant")
+@Entity
+@Table(name = "restaurant") 
 @NoArgsConstructor
 @Getter
 @Setter
 public class Restaurant {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "restaurant_id")
     private Integer restaurantId;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false) 
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @JsonIgnore // sakriti podatak, zbog "soft delete"
+    @JsonIgnore
+    @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 }

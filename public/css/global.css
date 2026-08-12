@@ -4,18 +4,15 @@
   margin-right: auto;
 }
 
-/* POPRAVLJENO: Dodata tačka za klasu */
 .card-img-top {
-  height: 180px;        /* Fiksna visina slike */
-  object-fit: cover;    /* Sprečava izobličavanje slike */
+  height: 180px;        
+  object-fit: cover;    
 }
 
-/* Pomera li.search-item skroz na desnu stranu */
 nav ul li.search-item {
   margin-left: auto; 
 }
 
-/* Poravnava input i button unutar forme */
 .search-container {
   display: flex;
   align-items: center;

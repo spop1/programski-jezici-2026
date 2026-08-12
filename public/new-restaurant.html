@@ -79,15 +79,15 @@
         async function addRestaurant() {
             // Validation blank fields 
             if (!inputName.value.trim() || !inputAddress.value.trim()) {
-                showAlert('Please fill in all required fields!', 'warning');
-                return;
+                showAlert('Please fill in all required fields!', 'warning')
+                return
             }
 
             try {
                 // Safety check before calling the global loading spinner
                 if (typeof showLoading === 'function') showLoading();
 
-                const response = await fetch(`/api/restaurant`, {
+                const response = await fetch(`http://localhost:8888/api/restaurant`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -97,17 +97,43 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('The server rejected the addition.');
+                    let backendMessage = 'The server rejected the addition.'
+                    let rawText = ''
+
+                    // Unbox the JSON error from the backend, and write it
+                    try {
+                        rawText = await response.text();
+                        console.log("Sirovi tekst sa servera:", rawText)
+
+                        if (rawText) {
+                            const errorData = JSON.parse(rawText)
+
+                            if (errorData.errors && Array.isArray(errorData.errors)) {
+                                backendMessage = errorData.errors.map(err => err.defaultMessage || err).join('<br>')
+                            } else if (errorData.message) {
+                                backendMessage = errorData.message
+                            } else {
+                                backendMessage = rawText
+                            }
+                        }
+                    } catch (jsonError) {
+                        if (rawText) {
+                            backendMessage = rawText
+                        }
+                    }
+
+                    throw new Error(backendMessage)
                 }
 
                 // Safety check before closing the modal
-                if (typeof Swal !== 'undefined' && Swal.close) Swal.close();
-                openAll();
+                if (typeof Swal !== 'undefined' && Swal.close) Swal.close()
+                openAll()
 
             } catch (error) {
                 console.error('An error occured while saving:', error);
-                if (typeof Swal !== 'undefined' && Swal.close) Swal.close();
-                showAlert('Failed to save the new restaurant to the database.');
+                if (typeof Swal !== 'undefined' && Swal.close) Swal.close()
+
+                showAlert(error.message)
             }
         }
 
