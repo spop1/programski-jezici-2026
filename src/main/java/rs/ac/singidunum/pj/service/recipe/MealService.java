@@ -3,12 +3,15 @@ package rs.ac.singidunum.pj.service.recipe;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+
+import rs.ac.singidunum.pj.model.recipe.MealCategoryResponse;
+import rs.ac.singidunum.pj.model.recipe.MealFilterResponse;
 import rs.ac.singidunum.pj.model.recipe.MealModel;
 import rs.ac.singidunum.pj.model.recipe.MealResponseModel;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MealService {
@@ -22,6 +25,32 @@ public class MealService {
                 .baseUrl(baseUrl)
                 .defaultHeader("Accept", "application/json")
                 .build();
+    }
+
+    public List<String> getAllCategories() {
+        MealCategoryResponse response = client.get()
+        .uri("https://www.themealdb.com/api/json/v1/1/list.php?c=list")
+        .retrieve()
+        .body(MealCategoryResponse.class);
+
+        if (response != null && response.getMeals() != null) {
+            return response.getMeals().stream()
+            .map(MealCategoryResponse.CategoryItem::getStrCategory)
+            .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    public List<MealFilterResponse.MealItem> getMealsByCategory(String categoryName) {
+        MealFilterResponse response = client.get()
+        .uri("https://www.themealdb.com/api/json/v1/1/filter.php?c={c}", categoryName)
+        .retrieve()
+        .body(MealFilterResponse.class);
+
+        if (response != null && response.getMeals() != null) {
+            return response.getMeals();
+        }
+        return Collections.emptyList();
     }
 
     public Optional<MealResponseModel> getAll() {
@@ -56,7 +85,7 @@ public class MealService {
     }
 
     public Optional<MealModel> getMealById(String id) {
-        System.out.println(">>> Pokušavam da dohvatim recept za ID: '" + id + "'");
+        System.out.println(">>> I'm trying to grap recipe for ID: '" + id + "'");
         try {
             MealResponseModel response = client.get()
                     .uri("/lookup.php?i={id}", id) 

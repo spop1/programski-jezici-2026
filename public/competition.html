@@ -17,12 +17,16 @@
         <div class="card">
             <div class="card-header fw-bold">
                 <h6>Participiants</h6>
+                <a href="/new-competition.html" class="btn btn-sm btn-primary btn-sm">
+                    <i class="fa-solid fa-plus me-1"></i> Add a competition
+                </a>
             </div>
             <div class="card-body">
                 <table class="table">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
+                            <th scope="col">Name</th>
                             <th scope="col">Recipe</th>
                             <th scope="col">Restaurant</th>
                             <th scope="col">Start Projection</th>
@@ -42,35 +46,68 @@
     <script src="/js/utils.js"></script>
 
     <script>
-        function renderTable(data) {
+
+        function edit(id) {
+            window.location.href = '/edit-competition.html?id=' + id
+        }
+
+
+        function deleteCompetition(id) {
+
+            showConfirm(`Are you sure you want to delete this competition schedule #${id}?`, async () => {
+                try {
+                    const rsp = await fetch(`/api/competition/${id}`, { method: 'DELETE' })
+                    if (rsp.ok) {
+                        initPageLoad('/api/competition', '/api/competition/search?name=', renderCompetition)
+                    } else {
+                        Swal.fire({
+                            title: "Error!",
+                            text: "It can't be deleted'.",
+                            icon: "error",
+                            customClass: window.bootstrapClasses
+                        })
+                    }
+                } catch (error) {
+                    console.error("An error occurred while deleting:", error)
+                }
+            });
+        }
+
+        function renderCompetition(data) {
             const tableBody = document.getElementById('schedulesTable');
 
             const schedules = Array.isArray(data) ? data : (data?.schedules || []);
 
             if (schedules.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No schedules found.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No schedules found.</td></tr>`;
                 return;
             }
 
             let content = "";
 
             for (let schedule of schedules) {
-                const scheduleId = schedule.competitionSchedulesId || 'N/A';
-                const recipeName = schedule.recipe?.strMeal || 'Unknown Recipe';
-                const recipeId = schedule.recipe?.idMeal || '';
-                const restaurantName = schedule.restaurant?.name || 'Unknown Restaurant';
-                const timeStart = schedule.timeStart || 'TBD';
+                const scheduleId = schedule.competitionId || 'N/A'
+                const name = schedule.name || 'undefined'
+                const recipeName = schedule.recipe?.strMeal || 'Unknown Recipe'
+                const recipeId = schedule.recipeId || ''
+                const restaurantName = schedule.restaurant?.name || 'Unknown Retaurant'
+                const timeStart = schedule.timeStart 
+                ? new Date(schedule.timeStart).toLocaleTimeString('sr-RS'): 'TBD'
 
                 content += `
                   <tr>
                     <th scope="row">${scheduleId}</th>
+                    <td>${escapeHTML(name)}</td>
                     <td>${escapeHTML(recipeName)}</td>
                     <td>${escapeHTML(restaurantName)}</td>
                     <td>${escapeHTML(timeStart)}</td>
                     <td>
-                      <a href="details.html?id=${encodeURIComponent(recipeId)}" class="btn btn-primary btn-sm">
-                        <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Details
-                      </a>  
+                      <button class="btn btn-sm btn-success me-1" type="button" onclick="edit(${scheduleId})" title="Change">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button class="btn btn-sm btn-danger" type="button" onclick="deleteCompetition(${scheduleId})" title="Delete">
+                         <i class="fa-solid fa-trash-can"></i>
+                      </button>
                     </td>
                   </tr>
                 `;
@@ -79,8 +116,14 @@
             tableBody.innerHTML = content;
         }
 
+        async function loadCompetition() {
+      const data = await retrieveData('/api/competition')
+
+      if (data) renderCompetition(data)
+    }
+
         document.addEventListener('DOMContentLoaded', () => {
-            initPageLoad('/api/competition', '/api/competition/search?name=', renderTable);
+            initPageLoad('/api/competition', '/api/competition/search?name=', renderCompetition);
         });
     </script>
 </body>

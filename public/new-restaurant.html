@@ -87,7 +87,7 @@
                 // Safety check before calling the global loading spinner
                 if (typeof showLoading === 'function') showLoading();
 
-                const response = await fetch(`http://localhost:8888/api/restaurant`, {
+                const response = await fetch(`/api/restaurant`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -102,8 +102,8 @@
 
                     // Unbox the JSON error from the backend, and write it
                     try {
-                        rawText = await response.text();
-                        console.log("Sirovi tekst sa servera:", rawText)
+                        rawText = await response.text()
+                        console.log("Raw text from server", rawText)
 
                         if (rawText) {
                             const errorData = JSON.parse(rawText)

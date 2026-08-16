@@ -23,7 +23,7 @@ public class RestaurantService {
 
      public List<RestaurantModel> getAll() {
         return repository.findAllByDeletedAtIsNull()
-                .stream()
+                .stream() 
                 .map(this::toModel)
                 .toList();
     }
@@ -39,7 +39,7 @@ public class RestaurantService {
 
     public RestaurantModel update(Integer id, RestaurantModel model) {
         Restaurant existing = repository.findOneByRestaurantIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException("The restaurant is not founded."));
+                .orElseThrow(() -> new RuntimeException("The restaurant was not found."));
 
         existing.setAddress(model.getAddress());
         existing.setName(model.getName());
@@ -57,7 +57,7 @@ public class RestaurantService {
     }
 
     // Mapping Restaurant to RestaurantModel
-    private RestaurantModel toModel(Restaurant entity) {
+    public RestaurantModel toModel(Restaurant entity) {
         if (entity == null)
             return null;
 
@@ -70,7 +70,7 @@ public class RestaurantService {
     }
 
     // Mapping RestaurantModel to Restaurant
-    private Restaurant toEntity(RestaurantModel model) {
+    public Restaurant toEntity(RestaurantModel model) {
         if (model == null)
             return null;
 

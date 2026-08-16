@@ -1,7 +1,6 @@
 package rs.ac.singidunum.pj.entity;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -26,7 +25,10 @@ public class Competition {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "competition_id")
-    private Integer competitionSchedulesId;
+    private Integer competitionId;
+
+    @Column(name = "name", nullable = false) 
+    private String name;
 
     @Column(name = "recipe_id", nullable = false)
     @JsonIgnore
@@ -40,7 +42,7 @@ public class Competition {
     private Restaurant restaurant;
 
     @Column(name = "time_start", nullable = false) 
-    private LocalTime timeStart;
+    private LocalDateTime timeStart;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

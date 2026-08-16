@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import rs.ac.singidunum.pj.model.recipe.MealFilterResponse;
 import rs.ac.singidunum.pj.model.recipe.MealModel;
 import rs.ac.singidunum.pj.model.recipe.MealResponseModel;
 import rs.ac.singidunum.pj.service.recipe.MealService;
@@ -19,6 +21,16 @@ import java.util.List;
 public class MealController {
 
     private final MealService service;
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        return ResponseEntity.ok(service.getAllCategories());
+    }
+
+    @GetMapping("/category/{name}")
+    public ResponseEntity<List<MealFilterResponse.MealItem>> getMealsByCategory(@PathVariable String name) {
+        return ResponseEntity.ok(service.getMealsByCategory(name));
+    }
 
     @GetMapping
     public ResponseEntity<MealResponseModel> getAllMeals() {

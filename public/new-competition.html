@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Competition</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <div class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <strong class="h5 mb-0"><i class="fa-solid fa-pen-to-square me-2"></i>Add a
+                            competition</strong>
+                    </div>
+                    <div id="alert-container" class="px-3 pt-3"></div>
+                    <form id="competition-form">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name:</label>
+                                <input type="text" id="name" class="form-control" placeholder="Enter competition name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="recipeName" class="form-label">Recipe:</label>
+                                <select class="form-select" id="recipeName" placeholder="Enter recipe name">
+                                    <option value="">-- Choose a recipe --</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="restaurantName" class="form-label">Restaurant:</label>
+                                <select class="form-select" id="restaurantName" placeholder="Enter restaurant name">
+                                    <option value="">-- Choose a restaurant --</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="timeStart" class="form-label">Time start:</label>
+                                <input type="datetime-local" id="timeStart" class="form-control"
+                                    placeholder="Enter time start">
+                            </div>
+                        </div>
+
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <a href="./competition.html" class="btn btn-secondary btn-sm">
+                                <i class="fa-solid fa-arrow-left me-1"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success" id="save">
+                                <i class="fa-solid fa-floppy-disk me-1"></i>Save
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- External and utility scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script src="/js/utils.js"></script>
+
+    <script>
+        const params = new URLSearchParams(window.location.search)
+        const id = params.get('id');
+
+        const inputId = document.getElementById('id');
+        const inputCompetitionName = document.getElementById('name')
+        const inputTimeStart = document.getElementById('timeStart')
+        const formId = document.getElementById('competition-form')
+        const alertContainer = document.getElementById('alert-container')
+        const selectRestaurant = document.getElementById('restaurantName')
+        const selectRecipe = document.getElementById('recipeName')
+
+        function openAll() {
+            window.location.href = './competition.html'
+        }
+
+        // A showing alert Bootstrap helper method, default is danger
+        function showAlert(message, type = 'danger') {
+            alertContainer.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        }
+
+        // Fetches existing restaurant data by ID and populates the form
+        async function initPage() {          
+            try {
+                await Promise.all([
+                loadRestaurants(),
+                loadRecipes()
+               ])
+
+            } catch (error) {
+                console.error('Error loading dropdowns:', error)
+                showAlert('Failed to load form data.', 'danger')
+            }
+        }
+
+        // Helper method for obtaining and appending the restaurant in <select>
+        async function loadRestaurants() {
+            selectRestaurant.innerHTML = '<option value="">-- Choose a restaurant -- </option>'
+
+            try {
+                // Fetch the data
+                const data = await retrieveData('/api/restaurant')
+                console.log("1. Raw Restaurant API response:", data)
+
+                // Safely extract the array (handles Spring Boot pagination, direct arrays, etc.)
+                const restaurants = Array.isArray(data) ? data : (data?.content || data?.data || [])
+                console.log("2. Extracted restaurants array:", restaurants)
+
+                if (restaurants.length === 0) {
+                    console.warn("No restaurants found! The array is empty. Check your API endpoint.")
+                }
+
+                restaurants.forEach(r => {
+                    const option = document.createElement('option')
+                    option.value = r.restaurantId || r.id
+                    option.textContent = r.name || 'Unknown'
+
+                    selectRestaurant.appendChild(option)
+                });
+                console.log("Finished adding options. ", selectRestaurant)
+            } catch (error) {
+                console.log("Failed to load restaurants", error)
+            }
+        }
+
+        // Helper method for obtaining and appending the recipes in <select>
+        async function loadRecipes() {
+            selectRecipe.innerHTML = '<option value="">-- Choose a meal -- </option>'
+
+            const data = await retrieveData('/api/meals')
+            const meals = Array.isArray(data) ? data : (data?.meals || data?.content || [])
+
+            meals.forEach(m => {
+                const option = document.createElement('option')
+                option.value = m.idMeal
+                option.textContent = m.strMeal
+
+                selectRecipe.appendChild(option)
+            });
+        }
+
+
+        // Customized saving function (PUT)
+        async function createCompetition() {
+            // Validation blank fields 
+            if (!inputCompetitionName.value.trim() || !selectRecipe.value.trim()
+                || !inputTimeStart.value.trim() || !selectRestaurant.value.trim()) {
+                showAlert('Please fill in all required fields!', 'warning')
+                return;
+            }
+
+            try {
+                // Ensure showLoading exists in utils.js to prevent undefined errors
+                if (typeof showLoading === 'function') showLoading();
+
+                const response = await fetch(`/api/competition`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: inputCompetitionName.value.trim(),
+                        timeStart: inputTimeStart.value.trim(),
+                        recipeId: selectRecipe.value,
+                        restaurantId: parseInt(selectRestaurant.value)
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('The server rejected the creation.');
+                }
+
+                if (typeof Swal !== 'undefined' && Swal.close) Swal.close();
+                openAll();
+
+            } catch (error) {
+                console.error('An error occured while saving:', error);
+                if (typeof Swal !== 'undefined' && Swal.close) Swal.close();
+                showAlert('Failed to create competition.');
+            }
+        }
+
+        formId?.addEventListener('submit', function (event) {
+            event.preventDefault()
+            createCompetition()
+        });
+
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+
+</html>
