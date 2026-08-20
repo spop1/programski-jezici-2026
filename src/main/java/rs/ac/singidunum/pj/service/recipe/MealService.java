@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import org.springframework.cache.annotation.Cacheable;
 import rs.ac.singidunum.pj.model.recipe.MealCategoryResponse;
 import rs.ac.singidunum.pj.model.recipe.MealFilterResponse;
 import rs.ac.singidunum.pj.model.recipe.MealModel;
@@ -29,7 +30,7 @@ public class MealService {
 
     public List<String> getAllCategories() {
         MealCategoryResponse response = client.get()
-        .uri("https://www.themealdb.com/api/json/v1/1/list.php?c=list")
+        .uri("/list.php?c=list")
         .retrieve()
         .body(MealCategoryResponse.class);
 
@@ -43,7 +44,7 @@ public class MealService {
 
     public List<MealFilterResponse.MealItem> getMealsByCategory(String categoryName) {
         MealFilterResponse response = client.get()
-        .uri("https://www.themealdb.com/api/json/v1/1/filter.php?c={c}", categoryName)
+        .uri("/filter.php?c={c}", categoryName)
         .retrieve()
         .body(MealFilterResponse.class);
 
@@ -53,6 +54,7 @@ public class MealService {
         return Collections.emptyList();
     }
 
+    @Cacheable("allMeals")
     public Optional<MealResponseModel> getAll() {
         try {
             MealResponseModel response = client.get()

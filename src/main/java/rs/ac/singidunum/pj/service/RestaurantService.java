@@ -1,6 +1,7 @@
 package rs.ac.singidunum.pj.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,6 +81,15 @@ public class RestaurantService {
         restaurant.setName(model.getName());
 
         return restaurant;
+    }
+
+    public List<RestaurantModel> getByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return repository.findAllByRestaurantIdInAndDeletedAtIsNull(ids)
+        .stream().map(this::toModel).toList();
     }
 
 }

@@ -2,6 +2,8 @@ package rs.ac.singidunum.pj.service.recipe;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 import jakarta.validation.Valid;
@@ -13,7 +15,7 @@ import rs.ac.singidunum.pj.model.recipe.MealModel;
 import rs.ac.singidunum.pj.model.recipe.RestaurantModel;
 import rs.ac.singidunum.pj.repo.CompetitionRepo;
 import rs.ac.singidunum.pj.service.RestaurantService;
-
+import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -32,14 +34,7 @@ public class CompetitionService {
     public Optional<CompetitionModel> getById(Integer id) {
         return competitionRepo.findOneByCompetitionIdAndDeletedAtIsNull(id)
                 .map(entity -> toModel(entity));
-    }
-
-    public List<CompetitionModel> getAll() {
-        return competitionRepo.findAllByDeletedAtIsNull()
-                .stream()
-                .map(this::toModel)
-                .toList();
-    }
+    } 
 
     // Helper method to fetch other meal fields from an external API for a specific
     // competition
@@ -159,4 +154,32 @@ public class CompetitionService {
         return model;
     }
 
+       public List<CompetitionModel> getAll() {
+        List<Competition> competitions = competitionRepo.findAllByDeletedAtIsNull();
+        List<Integer> ids = competitions.stream().map(r -> r.getRestaurant().getRestaurantId()).toList();
+        List<RestaurantModel> restaurants = restaurantService.getByIds(ids);
+
+      Map<Integer, RestaurantModel> restaurantMap = new HashMap<>();
+        for (RestaurantModel r : restaurants) {
+            restaurantMap.put(r.getRestaurantId(), r);
+        }
+
+        return competitions.stream()
+            .map(c -> toModelWithRestaurant(c, restaurantMap)).toList();
+    }
+
+     private CompetitionModel toModelWithRestaurant(Competition entity, Map<Integer, RestaurantModel> restaurantMap) {
+        CompetitionModel model = new CompetitionModel();
+
+        model.setCompetitionId(entity.getCompetitionId());
+        model.setName(entity.getName());
+        model.setRecipeId(entity.getRecipeId());
+        model.setTimeStart(entity.getTimeStart());
+
+        RestaurantModel restaurant = restaurantMap.get(entity.getRestaurant().getRestaurantId());
+
+        model.setRestaurant(restaurant);
+
+        return model;
+    }
 }
