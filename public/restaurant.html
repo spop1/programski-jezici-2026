@@ -10,14 +10,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
     integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/css/global.css" />
 </head>
 
-<body>
+<body data-search-base="http://localhost:8080/api/restaurants?name=">
   <div class="container my-4">
     <div class="card">
       <div class="card-header fw-bold d-flex justify-content-between align-items-center">
         <h6>Restaurants</h6>
-        <a href="/new-restaurant.html" class="btn btn-sm btn-primary btn-sm">
+        <a href="/add-restaurant.html" class="btn btn-sm btn-primary btn-sm">
           <i class="fa-solid fa-plus me-1"></i> Add a restaurants
         </a>
       </div>
@@ -95,7 +96,14 @@
         try {
           const rsp = await fetch(`/api/restaurant/${id}`, { method: 'DELETE' })
           if (rsp.ok) {
-            loadRestaurants()
+            const currentSearch = new URLSearchParams(window.location.search).get('search')
+            if (currentSearch) {
+              initPageLoad('/api/restaurant', '/api/restaurant?name=', renderRestaurants)
+            } else {
+              const data = await retrieveData('/api/restaurant')
+              renderRestaurants(data)
+            }
+
           } else {
             Swal.fire({
               title: "Error!",
@@ -110,7 +118,13 @@
       });
     }
 
-    document.addEventListener('DOMContentLoaded', loadRestaurants)
+    document.addEventListener('DOMContentLoaded', () => {
+      initPageLoad(
+        '/api/restaurant',
+        '/api/restaurant?name=',
+        renderRestaurants
+      )
+    })
   </script>
 </body>
 

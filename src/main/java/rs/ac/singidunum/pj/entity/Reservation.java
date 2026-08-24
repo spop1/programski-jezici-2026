@@ -17,18 +17,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import rs.ac.singidunum.pj.model.recipe.MealModel;
 
-@Entity(name = "competition")
+@Entity(name = "reservation")
 @NoArgsConstructor
 @Getter
 @Setter
-public class Competition {
+public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "competition_id")
-    private Integer competitionId;
-
-    @Column(name = "name", nullable = false) 
-    private String name;
+    @Column(name = "reservation_id")
+    private Integer reservationId;
 
     @Column(name = "recipe_id", nullable = false)
     @JsonIgnore
@@ -41,7 +38,7 @@ public class Competition {
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
-    @Column(name = "time_start", nullable = false) 
+    @Column(name = "time_start", nullable = false)
     private LocalDateTime timeStart;
 
     @Column(nullable = false)
@@ -51,4 +48,7 @@ public class Competition {
 
     @JsonIgnore // To hide the data, because of "soft delete"
     private LocalDateTime deletedAt;
+
+    private String status;
+
 }

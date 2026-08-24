@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -31,7 +32,10 @@ public class RestaurantController {
             private final RestaurantService service;
 
             @GetMapping
-            public List<RestaurantModel> getRestaurants(){
+            public List<RestaurantModel> getRestaurants(@RequestParam(required = false) String name){
+                if(name != null && !name.isBlank()){
+                    return service.searchRestaurants(name);
+                }
                 return service.getAll();
             }
 

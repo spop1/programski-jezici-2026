@@ -9,6 +9,8 @@ import rs.ac.singidunum.pj.model.recipe.MealCategoryResponse;
 import rs.ac.singidunum.pj.model.recipe.MealFilterResponse;
 import rs.ac.singidunum.pj.model.recipe.MealModel;
 import rs.ac.singidunum.pj.model.recipe.MealResponseModel;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -24,34 +26,8 @@ public class MealService {
 
         this.client = RestClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader("Accept", "application/json")
+                .defaultHeader("User-Agent", "Mozilla/5.0")
                 .build();
-    }
-
-    public List<String> getAllCategories() {
-        MealCategoryResponse response = client.get()
-        .uri("/list.php?c=list")
-        .retrieve()
-        .body(MealCategoryResponse.class);
-
-        if (response != null && response.getMeals() != null) {
-            return response.getMeals().stream()
-            .map(MealCategoryResponse.CategoryItem::getStrCategory)
-            .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
-    }
-
-    public List<MealFilterResponse.MealItem> getMealsByCategory(String categoryName) {
-        MealFilterResponse response = client.get()
-        .uri("/filter.php?c={c}", categoryName)
-        .retrieve()
-        .body(MealFilterResponse.class);
-
-        if (response != null && response.getMeals() != null) {
-            return response.getMeals();
-        }
-        return Collections.emptyList();
     }
 
     @Cacheable("allMeals")
@@ -99,8 +75,43 @@ public class MealService {
             }
         } catch (Exception e) {
             System.err.println("Error in getMealById for ID " + id + ": " + e.getMessage());
+            e.printStackTrace();
         }
 
         return Optional.empty(); 
     }
+
+    // Call the parallel stream for getMealById()
+    public List<MealModel> getByIds(List<String> ids) {
+   
+        return ids.parallelStream().map(this::getMealById)
+                .filter(Optional::isPresent).map(Optional::get).toList();
+    }
+
+     public List<String> getAllCategories() {
+        MealCategoryResponse response = client.get()
+        .uri("/list.php?c=list")
+        .retrieve()
+        .body(MealCategoryResponse.class);
+
+        if (response != null && response.getMeals() != null) {
+            return response.getMeals().stream()
+            .map(MealCategoryResponse.CategoryItem::getStrCategory)
+            .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    public List<MealFilterResponse.MealItem> getMealsByCategory(String categoryName) {
+        MealFilterResponse response = client.get()
+        .uri("/filter.php?c={c}", categoryName)
+        .retrieve()
+        .body(MealFilterResponse.class);
+
+        if (response != null && response.getMeals() != null) {
+            return response.getMeals();
+        }
+        return Collections.emptyList();
+    }
+
 }

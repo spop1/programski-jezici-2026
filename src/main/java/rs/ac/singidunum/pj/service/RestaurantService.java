@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import rs.ac.singidunum.pj.entity.Restaurant;
+import rs.ac.singidunum.pj.exceptions.ResourceNotFoundExeption;
 import rs.ac.singidunum.pj.model.recipe.RestaurantModel;
 import rs.ac.singidunum.pj.repo.RestaurantRepository;
 
@@ -29,6 +30,13 @@ public class RestaurantService {
                 .toList();
     }
 
+    public List<RestaurantModel> searchRestaurants(String searchTerm) {
+        return repository.findByNameContainingIgnoreCaseAndDeletedAtIsNull(searchTerm)
+            .stream()
+            .map(this::toModel)
+            .toList();
+    }
+
     public RestaurantModel create(RestaurantModel model) {
         Restaurant entity = toEntity(model);
 
@@ -40,7 +48,7 @@ public class RestaurantService {
 
     public RestaurantModel update(Integer id, RestaurantModel model) {
         Restaurant existing = repository.findOneByRestaurantIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException("The restaurant was not found."));
+                .orElseThrow(() -> new ResourceNotFoundExeption("The restaurant was not found."));
 
         existing.setAddress(model.getAddress());
         existing.setName(model.getName());
@@ -52,7 +60,9 @@ public class RestaurantService {
 
     // Handles HTTP DELETE request to Soft-delete a restaurant by its id
     public void deleteById(Integer id) {
-        Restaurant restaurant = repository.findOneByRestaurantIdAndDeletedAtIsNull(id).orElseThrow();
+        Restaurant restaurant = repository.findOneByRestaurantIdAndDeletedAtIsNull(id).orElseThrow(
+            () -> new ResourceNotFoundExeption("Restaurant with id " + id + "not"));
+        
         restaurant.setDeletedAt(LocalDateTime.now());
         repository.save(restaurant);
     }

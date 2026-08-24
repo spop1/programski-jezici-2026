@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Inject navbar
   document.body.insertAdjacentHTML('afterbegin', `
     <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3">
         <div class="container">
@@ -34,8 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./competition.html">
-                            <i class="fa-solid fa-trophy me-2"></i>Competitions
+                        <a class="nav-link" href="./reservation.html">
+                            <i class="fa-solid fa-cart-arrow-down"></i>Reservations
                         </a>
                     </li>
                 </ul>
@@ -48,46 +47,45 @@ document.addEventListener('DOMContentLoaded', () => {
     </nav>
   `);
 
-  const searchForm = document.getElementById('searchForm');
-  const searchInput = document.getElementById('searchInput');
+  const searchForm = document.getElementById('searchForm')
+  const searchInput = document.getElementById('searchInput')
 
-  if (searchForm) {
+  const searchBaseUrl = document.body.getAttribute('data-search-base')
+
+  if (searchForm && searchBaseUrl) {
     searchForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const query = searchInput ? searchInput.value.trim() : '';
-      const path = window.location.pathname;
+      e.preventDefault()
+     const searchTerm = searchInput.value.trim()
 
-      let targetPage = 'index.html';
-      if (path.includes('restaurant')) targetPage = 'restaurant.html';
-      else if (path.includes('competition')) targetPage = 'competition.html';
-      else if (path.includes('list')) targetPage = 'list.html';
 
-      if (query !== '') {
-        window.location.href = `${targetPage}?search=${encodeURIComponent(query)}`;
+      if (searchTerm) {
+        window.location.search = `?search=${encodeURIComponent(searchTerm)}`;
       } else {
-        window.location.href = targetPage;
+        window.location.search = ''
       }
-    });
+    })
   }
-});
+})
 
 // URL-based state & Initial page load
 async function initPageLoad(defaultUrl, searchUrlBase, renderCallback) {
-  const urlParams = new URLSearchParams(window.location.search);
-  const searchQuery = urlParams.get('search');
-  const searchInput = document.getElementById('searchInput');
+  const urlParams = new URLSearchParams(window.location.search)
+  const searchQuery = urlParams.get('search')
+  const searchInput = document.getElementById('searchInput')
 
   try {
     if (searchQuery) {
-      if (searchInput) searchInput.value = searchQuery;
-      const data = await retrieveData(`${searchUrlBase}${encodeURIComponent(searchQuery)}`);
-      renderCallback(data);
+      if (searchInput) searchInput.value = searchQuery
+
+      const data = await retrieveData(`${searchUrlBase}${encodeURIComponent(searchQuery)}`)
+      
+      renderCallback(data)
     } else {
-      const data = await retrieveData(defaultUrl);
-      renderCallback(data);
+      const data = await retrieveData(defaultUrl)
+      renderCallback(data)
     }
   } catch (err) {
-    console.error("Error loading page data:", err);
+    console.error("Error loading page data:", err)
   }
 }
 

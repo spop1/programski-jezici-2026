@@ -9,11 +9,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CompetitionRequest {
-    @NotBlank
-    private String name;
+public class ReservationRequest {    
     
-    @NotNull
     private LocalDateTime timeStart;
     
     @NotNull

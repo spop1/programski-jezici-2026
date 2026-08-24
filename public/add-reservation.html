@@ -4,59 +4,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Competition</title>
+    <title>Add Reservation</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
         integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        #searchForm {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
     <div class="container my-4">
-        <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-lg-6">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <strong class="h5 mb-0"><i class="fa-solid fa-pen-to-square me-2"></i>Add a
-                            competition</strong>
-                    </div>
-                    <div id="alert-container" class="px-3 pt-3"></div>
-                    <form id="competition-form">
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Name:</label>
-                                <input type="text" id="name" class="form-control" placeholder="Enter competition name">
-                            </div>
-                            <div class="mb-3">
-                                <label for="recipeName" class="form-label">Recipe:</label>
-                                <select class="form-select" id="recipeName" placeholder="Enter recipe name">
-                                    <option value="">-- Choose a recipe --</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="restaurantName" class="form-label">Restaurant:</label>
-                                <select class="form-select" id="restaurantName" placeholder="Enter restaurant name">
-                                    <option value="">-- Choose a restaurant --</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="timeStart" class="form-label">Time start:</label>
-                                <input type="datetime-local" id="timeStart" class="form-control"
-                                    placeholder="Enter time start">
-                            </div>
-                        </div>
-
-                        <div class="card-footer d-flex justify-content-between align-items-center">
-                            <a href="./competition.html" class="btn btn-secondary btn-sm">
-                                <i class="fa-solid fa-arrow-left me-1"></i>Cancel
-                            </a>
-                            <button type="submit" class="btn btn-success" id="save">
-                                <i class="fa-solid fa-floppy-disk me-1"></i>Save
-                            </button>
-                        </div>
-                    </form>
+        <div class="crud-container">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/index.html">Home</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="/reservation.html">Reservation</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit</li>
+                </ol>
+            </nav>
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <strong class="h5 mb-0"><i class="fa-solid fa-plus me-2"></i></i>Add a
+                        reservation</strong>
                 </div>
+                <div id="alert-container" class="px-3 pt-3"></div>
+                <form id="reservation-form">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="recipeName" class="form-label">Recipe:</label>
+                            <select class="form-select" id="recipeName" placeholder="Enter recipe name">
+                                <option value="">-- Choose a recipe --</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="restaurantName" class="form-label">Restaurant:</label>
+                            <select class="form-select" id="restaurantName" placeholder="Enter restaurant name">
+                                <option value="">-- Choose a restaurant --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <a href="./reservation.html" class="btn btn-secondary btn-sm">
+                            <i class="fa-solid fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success" id="save">
+                            <i class="fa-solid fa-floppy-disk me-1"></i>Save
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -73,15 +78,13 @@
         const id = params.get('id');
 
         const inputId = document.getElementById('id');
-        const inputCompetitionName = document.getElementById('name')
-        const inputTimeStart = document.getElementById('timeStart')
-        const formId = document.getElementById('competition-form')
+        const formId = document.getElementById('reservation-form')
         const alertContainer = document.getElementById('alert-container')
         const selectRestaurant = document.getElementById('restaurantName')
         const selectRecipe = document.getElementById('recipeName')
 
         function openAll() {
-            window.location.href = './competition.html'
+            window.location.href = './reservation.html'
         }
 
         // A showing alert Bootstrap helper method, default is danger
@@ -96,12 +99,12 @@
         }
 
         // Fetches existing restaurant data by ID and populates the form
-        async function initPage() {          
+        async function initPage() {
             try {
                 await Promise.all([
-                loadRestaurants(),
-                loadRecipes()
-               ])
+                    loadRestaurants(),
+                    loadRecipes()
+                ])
 
             } catch (error) {
                 console.error('Error loading dropdowns:', error)
@@ -156,11 +159,9 @@
         }
 
 
-        // Customized saving function (PUT)
-        async function createCompetition() {
-            // Validation blank fields 
-            if (!inputCompetitionName.value.trim() || !selectRecipe.value.trim()
-                || !inputTimeStart.value.trim() || !selectRestaurant.value.trim()) {
+
+        async function createReservation() {
+            if (!selectRecipe.value.trim() || !selectRestaurant.value.trim()) {
                 showAlert('Please fill in all required fields!', 'warning')
                 return;
             }
@@ -169,12 +170,10 @@
                 // Ensure showLoading exists in utils.js to prevent undefined errors
                 if (typeof showLoading === 'function') showLoading();
 
-                const response = await fetch(`/api/competition`, {
+                const response = await fetch(`/api/reservations`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        name: inputCompetitionName.value.trim(),
-                        timeStart: inputTimeStart.value.trim(),
                         recipeId: selectRecipe.value,
                         restaurantId: parseInt(selectRestaurant.value)
                     })
@@ -190,13 +189,13 @@
             } catch (error) {
                 console.error('An error occured while saving:', error);
                 if (typeof Swal !== 'undefined' && Swal.close) Swal.close();
-                showAlert('Failed to create competition.');
+                showAlert('Failed to create reservation.');
             }
         }
 
         formId?.addEventListener('submit', function (event) {
             event.preventDefault()
-            createCompetition()
+            createReservation()
         });
 
         document.addEventListener('DOMContentLoaded', initPage);

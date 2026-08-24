@@ -1,6 +1,8 @@
 package rs.ac.singidunum.pj.controller.recipe;
 
 import lombok.RequiredArgsConstructor;
+
+import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,14 +24,10 @@ public class MealController {
 
     private final MealService service;
 
-    @GetMapping("/categories")
-    public ResponseEntity<List<String>> getCategories() {
-        return ResponseEntity.ok(service.getAllCategories());
-    }
-
-    @GetMapping("/category/{name}")
-    public ResponseEntity<List<MealFilterResponse.MealItem>> getMealsByCategory(@PathVariable String name) {
-        return ResponseEntity.ok(service.getMealsByCategory(name));
+    @GetMapping("/batch")
+    public ResponseEntity<List<MealModel>> getByIds(@RequestParam List<String> ids) {
+        List<MealModel> meals = service.getByIds(ids);
+        return ResponseEntity.ok(meals);
     }
 
     @GetMapping
@@ -47,8 +45,17 @@ public class MealController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<MealModel>> searchMeals(@RequestParam(defaultValue = "Flan") String name) {
-        List<MealModel> meals = service.searchMealsByName(name);
-        return ResponseEntity.ok(meals);
+    public List<MealModel> searchMeals(@RequestParam String name) {
+        return service.searchMealsByName(name);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        return ResponseEntity.ok(service.getAllCategories());
+    }
+
+    @GetMapping("/category/{name}")
+    public ResponseEntity<List<MealFilterResponse.MealItem>> getMealsByCategory(@PathVariable String name) {
+        return ResponseEntity.ok(service.getMealsByCategory(name));
     }
 }
