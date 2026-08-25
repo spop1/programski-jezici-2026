@@ -1,4 +1,4 @@
-package rs.ac.singidunum.pj.service;
+package rs.ac.singidunum.pj.service.recipe;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

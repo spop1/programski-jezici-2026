@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0 
+    container_name: reservation-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: reservation-mysql
+      MYSQL_USER: spring
+      MYSQL_PASSWORD: spring
+    ports:
+      - "3306:3306" 
+    networks:
+      - spring-network
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: reservation-app
+    ports:
+      - "8889:8888"   
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      SPRING_DATASOURCE_USERNAME: spring 
+      SPRING_DATASOURCE_PASSWORD: spring
+    networks:
+      - spring-network
+    
+networks:
+  spring-network:
+    driver: bridge
+
+volumes:
+   mysql_data:

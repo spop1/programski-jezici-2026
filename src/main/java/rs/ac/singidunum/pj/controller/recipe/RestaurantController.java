@@ -1,4 +1,4 @@
-package rs.ac.singidunum.pj.controller;
+package rs.ac.singidunum.pj.controller.recipe;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import rs.ac.singidunum.pj.model.recipe.RestaurantModel;
-import rs.ac.singidunum.pj.service.RestaurantService;
+import rs.ac.singidunum.pj.service.recipe.RestaurantService;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.ResponseStatus;

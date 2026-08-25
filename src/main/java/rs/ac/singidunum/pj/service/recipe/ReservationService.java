@@ -15,7 +15,7 @@ import rs.ac.singidunum.pj.model.recipe.ReservationRequest;
 import rs.ac.singidunum.pj.model.recipe.MealModel;
 import rs.ac.singidunum.pj.model.recipe.RestaurantModel;
 import rs.ac.singidunum.pj.repo.ReservationRepo;
-import rs.ac.singidunum.pj.service.RestaurantService;
+
 import java.util.HashMap;
 import java.util.Optional;
 
