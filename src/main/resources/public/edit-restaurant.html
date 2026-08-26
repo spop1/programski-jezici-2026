@@ -119,7 +119,7 @@
 
             try {
                 // FIXED: Using await since retrieveData now returns a Promise
-                const data = await retrieveData(`/api/restaurant/${id}`);
+                const data = await retrieveData(`/api/restaurants/${id}`);
                 populateForm(data);
             } catch (error) {
                 showAlert('Failed to load restaurant data.', 'danger');

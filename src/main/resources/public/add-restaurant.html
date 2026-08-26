@@ -101,7 +101,7 @@
                 // Safety check before calling the global loading spinner
                 if (typeof showLoading === 'function') showLoading();
 
-                const response = await fetch(`/api/restaurant`, {
+                const response = await fetch(`/api/restaurants`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

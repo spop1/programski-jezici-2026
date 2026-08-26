@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @CrossOrigin
 @RestController
-@RequestMapping(path = "/api/restaurant")
+@RequestMapping(path = "/api/restaurants")
 @RequiredArgsConstructor
 public class RestaurantController {
 
