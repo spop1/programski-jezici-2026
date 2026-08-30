@@ -165,7 +165,7 @@
 
             try {
                 // Fetch the data
-                const data = await retrieveData('/api/restaurant')
+                const data = await retrieveData('/api/restaurants')
                 console.log("1. Raw Restaurant API response:", data)
 
                 // Safely extract the array (handles Spring Boot pagination, direct arrays, etc.)

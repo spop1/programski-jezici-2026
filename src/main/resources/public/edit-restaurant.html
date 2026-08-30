@@ -137,7 +137,7 @@
             try {
                 showLoading();
 
-                const response = await fetch(`/api/restaurant/${id}`, {
+                const response = await fetch(`/api/restaurants/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
