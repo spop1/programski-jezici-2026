@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+import rs.ac.singidunum.pj.exceptions.BadRequestException;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import rs.ac.singidunum.pj.entity.Reservation;
 import rs.ac.singidunum.pj.entity.Restaurant;
 import rs.ac.singidunum.pj.exceptions.ResourceNotFoundExeption;
 import rs.ac.singidunum.pj.model.recipe.RestaurantModel;
+import rs.ac.singidunum.pj.repo.ReservationRepo;
 import rs.ac.singidunum.pj.repo.RestaurantRepository;
 
 @Service
@@ -17,24 +19,25 @@ import rs.ac.singidunum.pj.repo.RestaurantRepository;
 public class RestaurantService {
 
     private final RestaurantRepository repository;
+    private final ReservationRepo reservationRepo;
 
     public Optional<RestaurantModel> getById(Integer id) {
         return repository.findOneByRestaurantIdAndDeletedAtIsNull(id)
                 .map(entity -> toModel(entity));
     }
 
-     public List<RestaurantModel> getAll() {
+    public List<RestaurantModel> getAll() {
         return repository.findAllByDeletedAtIsNull()
-                .stream() 
+                .stream()
                 .map(this::toModel)
                 .toList();
     }
 
     public List<RestaurantModel> searchRestaurants(String searchTerm) {
         return repository.findByNameContainingIgnoreCaseAndDeletedAtIsNull(searchTerm)
-            .stream()
-            .map(this::toModel)
-            .toList();
+                .stream()
+                .map(this::toModel)
+                .toList();
     }
 
     public RestaurantModel create(RestaurantModel model) {
@@ -60,9 +63,14 @@ public class RestaurantService {
 
     // Handles HTTP DELETE request to Soft-delete a restaurant by its id
     public void deleteById(Integer id) {
+        boolean hasReservations = reservationRepo.existsByRestaurant_RestaurantId(id);
+
+        if (hasReservations) {
+        throw new BadRequestException("Cannot delete restaurant with ID " + id + " because it has existing reservations.");
+        }
         Restaurant restaurant = repository.findOneByRestaurantIdAndDeletedAtIsNull(id).orElseThrow(
-            () -> new ResourceNotFoundExeption("Restaurant with id " + id + "not"));
-        
+                () -> new ResourceNotFoundExeption("Restaurant with id " + id + "not"));
+
         restaurant.setDeletedAt(LocalDateTime.now());
         repository.save(restaurant);
     }
@@ -99,7 +107,7 @@ public class RestaurantService {
         }
 
         return repository.findAllByRestaurantIdInAndDeletedAtIsNull(ids)
-        .stream().map(this::toModel).toList();
+                .stream().map(this::toModel).toList();
     }
 
 }

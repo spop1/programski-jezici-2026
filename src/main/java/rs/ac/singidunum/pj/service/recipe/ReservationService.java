@@ -3,7 +3,8 @@ package rs.ac.singidunum.pj.service.recipe;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-
+import rs.ac.singidunum.pj.config.RabbitMqConfig;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import rs.ac.singidunum.pj.exceptions.InvalidOperationException;
@@ -16,6 +17,7 @@ import rs.ac.singidunum.pj.model.recipe.MealModel;
 import rs.ac.singidunum.pj.model.recipe.RestaurantModel;
 import rs.ac.singidunum.pj.repo.ReservationRepo;
 
+
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -24,12 +26,14 @@ public class ReservationService {
     private final ReservationRepo reservationRepo;
     private final MealService mealService;
     private final RestaurantService restaurantService;
+    private final RabbitTemplate rabbitTemplate;
 
     public ReservationService(ReservationRepo reservationRepo, MealService mealService,
-            RestaurantService restaurantService) {
+            RestaurantService restaurantService, RabbitTemplate rabbitTemplate) {
         this.reservationRepo = reservationRepo;
         this.mealService = mealService;
         this.restaurantService = restaurantService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public ReservationModel getById(Integer id) {
@@ -80,9 +84,14 @@ public class ReservationService {
             newReservation.setRestaurant(restaurantEntity);
         }
 
-        newReservation.setCreatedAt(LocalDateTime.now().plusMinutes(30));
+        newReservation.setCreatedAt(LocalDateTime.now());
 
         Reservation savedEntity = reservationRepo.save(newReservation);
+
+        Integer newReservationId = savedEntity.getReservationId();
+        String message = String.valueOf(newReservationId);
+        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE_NAME, RabbitMqConfig.ROUTING_KEY, message);
+
 
         return toModel(savedEntity);
     }

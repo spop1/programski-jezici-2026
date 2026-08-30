@@ -14,6 +14,8 @@ public interface ReservationRepo extends JpaRepository<Reservation, Integer>{
 
     Optional<Reservation> findOneByReservationIdAndDeletedAtIsNull(Integer id);
 
+    boolean existsByRestaurant_RestaurantId(Integer restaurantId);
+
 
 
 }
