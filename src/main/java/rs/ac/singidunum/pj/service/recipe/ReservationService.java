@@ -3,6 +3,8 @@ package rs.ac.singidunum.pj.service.recipe;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+
+import rs.ac.singidunum.pj.client.MealClient;
 import rs.ac.singidunum.pj.config.RabbitMqConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -24,14 +26,14 @@ import java.util.Optional;
 @Service
 public class ReservationService {
     private final ReservationRepo reservationRepo;
-    private final MealService mealService;
+    private final MealClient mealClient;
     private final RestaurantService restaurantService;
     private final RabbitTemplate rabbitTemplate;
 
-    public ReservationService(ReservationRepo reservationRepo, MealService mealService,
+    public ReservationService(ReservationRepo reservationRepo, MealClient mealClient,
             RestaurantService restaurantService, RabbitTemplate rabbitTemplate) {
         this.reservationRepo = reservationRepo;
-        this.mealService = mealService;
+        this.mealClient = mealClient;
         this.restaurantService = restaurantService;
         this.rabbitTemplate = rabbitTemplate;
     }
@@ -57,7 +59,7 @@ public class ReservationService {
         List<String> mealsIds = reservation.stream().filter(m -> m.getRecipeId() != null)
                 .map(Reservation::getRecipeId).distinct().toList();
 
-        List<MealModel> meals = mealService.getByIds(mealsIds);
+        List<MealModel> meals = mealClient.getMealsByIds(mealsIds);
 
         Map<String, MealModel> mealMap = new HashMap<>();
         for (MealModel m : meals) {
@@ -194,7 +196,7 @@ public class ReservationService {
             model.setRestaurant(restaurantService.toModel(entity.getRestaurant()));
         }
         if (entity.getRecipeId() != null && !entity.getRecipeId().isBlank()) {
-            MealModel meal = mealService.getMealById(entity.getRecipeId()).orElse(null);
+            MealModel meal = mealClient.getMealById(entity.getRecipeId());
             model.setRecipe(meal);
         }
         return model;

@@ -1,61 +1,60 @@
 package rs.ac.singidunum.pj.controller.recipe;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import rs.ac.singidunum.pj.client.MealClient;
 import rs.ac.singidunum.pj.model.recipe.MealFilterResponse;
 import rs.ac.singidunum.pj.model.recipe.MealModel;
 import rs.ac.singidunum.pj.model.recipe.MealResponseModel;
-import rs.ac.singidunum.pj.service.recipe.MealService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/meals")
+@CrossOrigin
 @RequiredArgsConstructor
 public class MealController {
 
-    private final MealService service;
+    private final MealClient mealClient;
 
-    @GetMapping("/batch")
-    public ResponseEntity<List<MealModel>> getByIds(@RequestParam List<String> ids) {
-        List<MealModel> meals = service.getByIds(ids);
-        return ResponseEntity.ok(meals);
-    }
 
     @GetMapping
     public ResponseEntity<MealResponseModel> getAllMeals() {
-        return service.getAll()
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        MealResponseModel response = mealClient.getAllMeals();
+        return response != null ? ResponseEntity.ok(response) : ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<MealModel> getMealById(@PathVariable String id) {
-        return service.getMealById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        MealModel meal = mealClient.getMealById(id);
+        return meal != null ? ResponseEntity.ok(meal) : ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/batch")
+    public ResponseEntity<List<MealModel>> getByIds(@RequestParam List<String> ids) {
+        return ResponseEntity.ok(mealClient.getMealsByIds(ids));
     }
 
     @GetMapping("/search")
     public List<MealModel> searchMeals(@RequestParam String name) {
-        return service.searchMealsByName(name);
+        return mealClient.searchMeals(name);
     }
 
     @GetMapping("/categories")
     public ResponseEntity<List<String>> getCategories() {
-        return ResponseEntity.ok(service.getAllCategories());
+        return ResponseEntity.ok(mealClient.getCategories());
     }
 
     @GetMapping("/category/{name}")
     public ResponseEntity<List<MealFilterResponse.MealItem>> getMealsByCategory(@PathVariable String name) {
-        return ResponseEntity.ok(service.getMealsByCategory(name));
+        return ResponseEntity.ok(mealClient.getMealsByCategory(name));
     }
 }

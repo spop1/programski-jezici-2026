@@ -21,6 +21,14 @@ services:
       timeout: 5s
       retries: 5
 
+  meal-service:
+    build: ./meal-service
+    container_name: meal-service
+    ports:
+      - "8881:8881"
+    networks:
+      - spring-network    
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -49,6 +57,7 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
+      MEAL_HOST: meal-service
       DB_HOST: db
       SPRING_DATASOURCE_USERNAME: spring 
       SPRING_DATASOURCE_PASSWORD: spring
