@@ -14,7 +14,7 @@ import rs.ac.singidunum.pj.model.recipe.MealFilterResponse;
 import rs.ac.singidunum.pj.model.recipe.MealModel;
 import rs.ac.singidunum.pj.model.recipe.MealResponseModel; 
 
-@FeignClient(name = "meal-service", url = "http://${MEAL_HOST:localhost}:8881/api/meals")
+@FeignClient(name = "meal-service", path = "/api/meals")
 public interface MealClient {
 
     @Retry(name = "mealService", fallbackMethod = "getAllMealsFallback")
@@ -23,7 +23,7 @@ public interface MealClient {
     MealResponseModel getAllMeals();
 
     default MealResponseModel getAllMealsFallback(Throwable ex) {
-        System.err.println("Upozorenje: Meal mikroservis je pao pri dohvatanju svih jela! Greška: " + ex.getMessage());
+        System.err.println("Upozorenje: Meal mikroservis je pao pri dohvatanju svih jela! Greska: " + ex.getMessage());
         // Return an empty object so the frontend doesn't receive a 500 error.
         return new MealResponseModel(); 
     }
@@ -35,7 +35,7 @@ public interface MealClient {
 
     // Return an empty object to prevent the frontend from receiving a 500 Internal Server Error
     default MealModel getMealFallback(String id, Throwable ex) {
-        System.err.println("Upozorenje: Meal mikroservis je pao! Vraćam privremene podatke. Greška: " + ex.getMessage());
+        System.err.println("Upozorenje: Meal mikroservis je pao! Vraćam privremene podatke. Greka: " + ex.getMessage());
         
         return new MealModel();
     }
