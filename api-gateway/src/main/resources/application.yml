@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalCors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: 
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders: "*"
+      routes:
+        - id: restaurant-route
+          uri: lb://reservation-service
+          predicates:
+          - Path=/api/restaurants/**, /api/reservations/**  
+        - id: meal-route
+          uri: lb://meal-service
+          predicates:
+          - Path=/api/meals/**
+        - id: frontend-route
+          uri: lb://reservation-service
+          predicates:
+          - Path=/**
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${EUREKA_HOST:localhost}:8761/eureka/
