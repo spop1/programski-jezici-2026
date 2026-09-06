@@ -18,10 +18,11 @@ The project originally started with a standard Three-Tier architecture, but was 
 * Asynchronous communication between microservices using RabbitMQ
 * System monitoring and real-time metrics using Prometheus and Grafana
 * Distributed request tracing across microservices using Zipkin
+* Fault telerance and fallback mechanisms using Resilience4j Circuit Breaker
 
 ### Technologies
 
-* **Backend:** Java, Spring Boot (Microservices, API Gateway, Eureka)
+* **Backend:** Java, Spring Boot (Microservices, API Gateway, Eureka, Resilience4j)
 * **Database:** MySQL
 * **Message Broker:** RabbitMQ
 * **Monitoring & Tracing:** Prometheus, Grafana, Zipkin
